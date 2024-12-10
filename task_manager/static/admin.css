@@ -1,0 +1,72 @@
+#header {
+    background: #2c3e50;
+    color: #fff;
+    padding: 15px 20px;
+}
+
+#branding h1 {
+    color: #fff;
+    font-weight: bold;
+}
+
+.module h2, .module caption {
+    background: #34495e;
+    color: #fff;
+    padding: 10px;
+}
+
+.button, input[type=submit], input[type=button] {
+    background: #2ecc71;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover {
+    background: #27ae60;
+}
+
+.submit-row input {
+    background: #2ecc71;
+    border-radius: 4px;
+}
+
+.submit-row input:hover {
+    background: #27ae60;
+}
+
+#content-main .object-tools a {
+    background: #3498db;
+    padding: 8px 15px;
+    border-radius: 4px;
+}
+
+#content-main .object-tools a:hover {
+    background: #2980b9;
+}
+
+.dashboard #content {
+    width: 95%;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.form-row {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.aligned label {
+    color: #333;
+    font-weight: bold;
+}
+
+.login #container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    padding: 30px;
+}

@@ -1,0 +1,235 @@
+{% block content %}
+
+<div class="header-container">
+    {% if user.is_authenticated %}
+        <div class="user-info">
+            <span class="welcome-text">Welcome, {{ user.username }}</span>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+    {% endif %} 
+</div>
+
+<div class="task-list">
+    <h2>Tasks Management</h2>
+
+    <div class="filter-buttons">
+        <a href="{% url 'task_list' %}?filter=all" class="filter-btn {% if filter == 'all' %}active{% endif %}">All Tasks</a>
+        <a href="{% url 'task_list' %}?filter=pending" class="filter-btn {% if filter == 'pending' %}active{% endif %}">Pending Tasks</a>
+        <a href="{% url 'task_list' %}?filter=completed" class="filter-btn {% if filter == 'completed' %}active{% endif %}">Completed Tasks</a>
+    </div>
+
+
+    <table class="task-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Created Date</th>
+                <th>Status</th>
+                {% if is_admin %}
+                <th>Assigned To</th>
+                {% endif %}
+                <th>Completed By</th>
+                <th>Completed At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr class="{% if task.status %}completed{% endif %}">
+                <td>{{ task.title }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{% if task.status %}Done{% else %}Pending{% endif %}</td>
+                {% if is_admin %}
+                <td>
+                    {% for user in task.assigned_users.all %}
+                        {{ user.username }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+                {% endif %}
+                <td>{{ task.completed_by.username|default:"-" }}</td>
+                <td>{{ task.completed_at|date:"Y-m-d H:i"|default:"-" }}</td>
+                <td>
+                    {% if not task.status %}
+                    <form method="post" action="{% url 'mark_done' task.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-mark-done">Mark as Done</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+
+.header-container {
+        display: flex;
+        justify-content: flex-end;
+        padding: 20px;
+        background-color: #f4f4f4;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .welcome-text {
+        color: #333;
+        font-weight: 500;
+    }
+
+    .logout-btn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .logout-btn:hover {
+        background-color: #45a049;
+    }
+
+    .task-table  {
+    color: rgba(0, 0, 0, 0.87);
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.625;
+    letter-spacing: 0.00938em;
+    }
+
+/* 
+    .task-table {
+    --bs-table-color: #212529;
+    --bs-table-bg: transparent;
+    --bs-table-border-color: #eeeeee;
+    --bs-table-accent-bg: transparent;
+    --bs-table-striped-color: #212529;
+    --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
+    --bs-table-active-color: #212529;
+    --bs-table-active-bg: rgba(0, 0, 0, 0.1);
+    --bs-table-hover-color: #212529;
+    --bs-table-hover-bg: rgba(38, 137, 226, 0.02);
+    width: 100%;
+    margin-bottom: 1rem;
+    color: var(--bs-table-color);
+    vertical-align: top;
+    border-color: var(--bs-table-border-color);
+    }
+
+    
+    .task-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    
+    .task-table th, .task-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+    
+    .task-table th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+    
+    .task-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .task-table tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .completed {
+        background-color: #e8ffe8 !important;
+    }
+    
+     */
+
+     .completed {
+        background-color:    #e9f7ef      !important;
+    }
+
+
+    .btn-mark-done {
+        background-color: #4CAF50;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .btn-mark-done:hover {
+        background-color: #45a049;
+    }
+
+    .filter-buttons {
+        margin: 20px 0;
+        display: flex;
+        gap: 10px;
+    }
+
+    .filter-btn {
+        padding: 8px 16px;
+        border: 2px solid #4CAF50;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #4CAF50;
+        background-color: white;
+        transition: all 0.3s;
+    }
+
+    .filter-btn:hover {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .filter-btn.active {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+
+</style>
+
+
+
+<script>
+    let inactivityTimeout;
+    const INACTIVE_TIMEOUT = 900000; // 15 minutes in milliseconds
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(logoutUser, INACTIVE_TIMEOUT);
+    }
+
+    function logoutUser() {
+        window.location.href = "{% url 'logout' %}";
+    }
+
+    // Reset timer on user activity
+    document.addEventListener('mousemove', resetInactivityTimer);
+    document.addEventListener('keypress', resetInactivityTimer);
+    document.addEventListener('click', resetInactivityTimer);
+    document.addEventListener('scroll', resetInactivityTimer);
+
+    // Start the timer when page loads
+    resetInactivityTimer();
+</script>
+
+
+
+{% endblock %}

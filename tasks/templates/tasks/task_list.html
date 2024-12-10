@@ -1,0 +1,311 @@
+{% block content %}
+<div class="fixed-top-container">
+    <div class="header-container">
+        {% if user.is_authenticated %}
+        <div class="user-info">
+            <span class="welcome-text">Welcome, {{ user.username }}</span>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="task-list">
+        <h2>Tasks Management</h2>
+        <div class="filter-buttons">
+            <a href="{% url 'task_list' %}?filter=all&title={{ title_filter }}" class="filter-btn {% if filter == 'all' %}active{% endif %}">All Tasks</a>
+            <a href="{% url 'task_list' %}?filter=pending&title={{ title_filter }}" class="filter-btn {% if not filter or filter == 'pending' %}active{% endif %}">Pending Tasks</a>
+            <a href="{% url 'task_list' %}?filter=completed&title={{ title_filter }}" class="filter-btn {% if filter == 'completed' %}active{% endif %}">Completed Tasks</a>
+            <input type="text" id="titleFilter" placeholder="Search by title" value="{{ title_filter }}">
+            <button id="filterButton" class="btn-filter">Filter</button>
+        </div>
+    </div>
+</div>
+
+<div class="content-container">
+    <div class="table-responsive">
+        <table class="task-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    {% if is_admin %}
+                    <th>Assigned To</th>
+                    {% endif %}
+                    <th>Completed By</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="taskBody">
+                {% for task in tasks %}
+                <tr class="{% if task.status %}completed{% endif %}">
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{% if task.status %}Done{% else %}Pending{% endif %}</td>
+                    {% if is_admin %}
+                    <td>
+                        {% for user in task.assigned_users.all %}
+                            {{ user.username }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% endif %}
+                    <td>{{ task.completed_by.username|default:"-" }}</td>
+                    <td>
+                        {% if not task.status %}
+                        <form method="post" action="{% url 'mark_done' task.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-mark-done">Mark as Done</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination">
+        <button id="prevPage" class="pagination-btn">Previous</button>
+        <span id="pageInfo">Page 1</span>
+        <button id="nextPage" class="pagination-btn">Next</button>
+    </div>
+</div>
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+.fixed-top-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: white;
+}
+
+.header-container {
+    display: flex;
+    justify-content: flex-end;
+    padding: 15px 20px;
+    background-color: #f4f4f4;
+    border-bottom: 1px solid #ddd;
+}
+
+.task-list {
+    padding: 0 20px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    padding: 15px 0;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+}
+
+.content-container {
+    margin-top: 180px;
+    padding: 20px;
+}
+
+.table-responsive {
+    width: 100%;
+    height: calc(100vh - 250px); /* Adjust height based on header size */
+    overflow-y: auto;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    position: relative;
+}
+
+.task-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+}
+
+.task-table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: 900;
+    padding: 16px;
+    text-align: left;
+    position: sticky;
+    top: 10;
+    z-index: 10;
+    border: none;
+}
+
+.task-table td {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Rest of your existing styles for buttons, forms, etc. */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.welcome-text {
+    color: #333;
+    font-weight: 500;
+}
+
+.task-table td:last-child {
+    text-align: center;
+    vertical-align: middle;
+    height: 100%;
+}
+
+.btn-mark-done {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    min-height: 36px;
+    margin: auto;
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.task-table td form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+.logout-btn, .btn-filter {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: 2px solid #4CAF50;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #4CAF50;
+    background-color: white;
+    transition: all 0.3s;
+}
+
+.filter-btn.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#titleFilter {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.completed {
+    background-color: #e8f5e9;
+}
+
+.pagination {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f4f4f4;
+    cursor: pointer;
+}
+</style>
+
+<script>
+// Your existing JavaScript code remains unchanged
+let currentPage = 1;
+const rowsPerPage = 20;
+
+function displayPage(page) {
+    const rows = document.querySelectorAll('#taskBody tr');
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+    
+    rows.forEach((row) => {
+        row.style.display = 'none';
+    });
+    
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    for (let i = start; i < end && i < rows.length; i++) {
+        rows[i].style.display = '';
+    }
+
+    document.getElementById('pageInfo').innerText = `Page ${page} of ${totalPages}`;
+    document.getElementById('prevPage').disabled = page === 1;
+    document.getElementById('nextPage').disabled = page === totalPages;
+}
+
+document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        displayPage(currentPage);
+    }
+});
+
+document.getElementById('nextPage').addEventListener('click', () => {
+    const totalRows = document.querySelectorAll('#taskBody tr').length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        displayPage(currentPage);
+    }
+});
+
+document.getElementById('filterButton').addEventListener('click', function() {
+    const title = document.getElementById('titleFilter').value;
+    const baseUrl = "{% url 'task_list' %}";
+    const currentFilter = '{{ filter }}';
+    const url = `${baseUrl}?filter=${currentFilter}&title=${encodeURIComponent(title)}`;
+    window.location.href = url;
+});
+
+let inactivityTimeout;
+const INACTIVE_TIMEOUT = 900000;
+
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimeout);
+    inactivityTimeout = setTimeout(logoutUser, INACTIVE_TIMEOUT);
+}
+
+function logoutUser() {
+    window.location.href = "{% url 'logout' %}";
+}
+
+document.addEventListener('mousemove', resetInactivityTimer);
+document.addEventListener('keypress', resetInactivityTimer);
+document.addEventListener('click', resetInactivityTimer);
+document.addEventListener('scroll', resetInactivityTimer);
+
+displayPage(currentPage);
+resetInactivityTimer();
+</script>
+{% endblock %}

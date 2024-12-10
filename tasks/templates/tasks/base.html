@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager</title>
+    <style>
+        .task-list { margin: 20px; }
+        .task-item { padding: 10px; border-bottom: 1px solid #ccc; }
+        .completed { background-color: #e8ffe8; }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- {% if user.is_authenticated %}
+            <span>Welcome, {{ user.username }}</span>
+            <a href="{% url 'logout' %}">Logout</a>
+        {% endif %} -->
+    </header>
+    
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

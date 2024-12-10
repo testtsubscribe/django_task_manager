@@ -1,0 +1,72 @@
+{% extends 'tasks/base.html' %} 
+
+{% block content %}
+<div class="login-container">
+    <div class="login-form">
+        <h2>Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="login-button">Login</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin-top: -50px;  /* Offset for any header/navbar */
+    }
+
+    .login-form {
+        max-width: 400px;
+        width: 100%;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-form h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 28px;
+    }
+
+    .login-form form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .login-form p {
+        margin-bottom: 20px;
+    }
+
+    .login-form input {
+        width: 95%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .login-button {
+        background-color: #4c63af;
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .login-button:hover {
+        background-color: #2e4cb1;
+    }
+</style>
+{% endblock %}
